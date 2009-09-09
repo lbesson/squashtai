@@ -1,0 +1,133 @@
+body {
+  margin: 0 10px 0 10px;
+  font: 13px/1.231 arial,helvetica,clean,sans-serif;
+}
+
+#shortcuts {
+  background-color: #e5ecf9;
+  border-top: 1px solid #6b90da;
+  text-align: center;
+  padding: 3px;
+}
+
+a {
+  color: #0000cc;
+  white-space: nowrap;
+  text-decoration:none;
+}
+
+a img {
+  border: none;
+  vertical-align: text-top;
+}
+
+hr {
+  border: 1px solid #6b90da;
+  width: 80%;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#logo {
+  text-align: center;
+}
+
+#main {
+  margin-top: 20px;
+}
+
+#top-options {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+
+.feedback
+{
+  z-index: 1000;
+  background-color: #f19914;
+  color: #fff;
+  text-align: center;
+}
+
+#indicator {
+  color: white;
+  background-color: red;
+  position: fixed;
+  z-index: 1000;
+  top: 5px;
+  left: 5px;
+}
+
+#ajax_feedback_failure {
+  background-color: #ffaaa7;
+  border: 1px solid #ff001f;
+  position: fixed;
+  z-index: 1000;
+  top: 5px;
+  left: 5px;
+}
+
+#ajax_feedback_success
+{
+  z-index: 1000;
+  background-color: #5eff95;
+  border: 1px solid #00a231;
+  position: fixed;
+  top: 5px;
+  left: 5px;
+}
+
+#welcome {
+  text-align: center;
+}
+
+#welcome a {
+  color: black;
+  text-decoration: underline;
+}
+
+.centered {
+  text-align: center;
+}
+
+.match {
+  margin: 0 auto 0 auto;
+  padding: 10px;
+  border-top: 2px dotted #6b90da;
+  width: 600px;
+  background-color: #fbfcfe
+}
+
+.match:hover {
+  background-color: #e5ecf9
+}
+
+.date {
+  text-align: right;
+  color: gray;
+}
+
+table {
+  border: 1px solid #6b90da;
+  border-collapse: collapse;
+}
+
+tr.color1 {
+  background-color: #e5ecf9;
+}
+
+tr.color0 {
+  background-color: white;
+}
+
+tr.color3 {
+  background-color: #6b90da;
+}
+
+td, th {
+  padding: 5px;
+}
+

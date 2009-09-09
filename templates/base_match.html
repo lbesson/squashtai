@@ -1,0 +1,23 @@
+## -*- coding: utf-8 -*-
+<%page args="match"/>
+<%
+  import models
+%>
+<div class="match">
+<div class="date">
+${models.relative_time(match.date)}
+</div>
+${match.player1}
+% if match.score1 == 3:
+<b>${match.score1}</b>
+% else:
+${match.score1}
+% endif
+ -
+% if match.score2 == 3:
+<b>${match.score2}</b>
+% else:
+${match.score2}
+% endif
+${match.player2}
+</div>

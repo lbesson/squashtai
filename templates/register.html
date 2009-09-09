@@ -1,0 +1,12 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<p class="centered">
+% if already_registered:
+  Vous êtes déjà inscrit.
+% else:
+  Votre inscription a été prise en compte.
+% endif
+</p>
+</%def>

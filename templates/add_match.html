@@ -1,0 +1,51 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+% if is_registered:
+<div class="centered">
+<form action="/match/add" method="post">
+Date du match:
+<select name="date" id="match_date">
+  <option value="0">Aujourd'hui</option>
+  <option value="1">Hier</option>
+  <option value="2">Il y a 2 jours</option>
+  <option value="3">Il y a 3 jours</option>
+  <option value="4">Il y a 4 jours</option>
+  <option value="5">Il y a 5 jours</option>
+  <option value="6">Il y a 6 jours</option>
+  <option value="7">Il y a 7 jours</option>
+</select>
+<br />
+<br />
+<span class="player">${me}</span>
+<select name="score1" id="score1">
+  <option value="0" selected="selected">0</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select>
+-
+<select name="score2" id="score2">
+  <option value="0" selected="selected">0</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select>
+<select name="player2" id="player2">
+% for user in registered_users:
+  % if str(me) != user.user.nickname():
+  <option value="${user.key().id()}">${user.user.nickname()}</option>
+  % endif
+% endfor
+</select>
+<br /><br />
+<input type="submit" value="Ajouter le match" />
+</form>
+</div>
+% else:
+<div class="centered">
+Vous devez vous enregistrer pour ajouter un match
+</div>
+% endif
+</%def>

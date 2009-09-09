@@ -1,0 +1,39 @@
+## -*- coding: utf-8 -*-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Squash TAI</title>
+    <link href="/css/main.css" rel="stylesheet" type="text/css" />
+    </style>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.0.3/prototype.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/scriptaculous/1.8.2/scriptaculous.js"></script>
+  </head>
+  <body>
+  <span id="indicator" style="display: none">loading...</span>
+  <span id="ajax_feedback_failure" style="display: none"></span>
+  <span id="ajax_feedback_success" style="display: none">Changes saved</span>
+  <div id="header">
+    <div id="logo">
+      <img src="/images/logo.png" alt="Squash TAI" />
+    </div>
+    <div id="shortcuts">
+      <a href="/">Classement</a> |
+      <a href="/match/add">Ajouter un match</a>
+      % if not is_registered:
+      | <a href="/register">Inscription</a>
+      % endif
+    </div>
+  </div>
+
+  <div id="main">
+  ${self.body()}
+  </div>
+
+  <div id="top-options">
+    <span class="login" >${greeting }</span>
+  </div>
+
+  </body>
+</html> 

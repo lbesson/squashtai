@@ -1,0 +1,23 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<%
+  import models
+%>
+<div class="centered">
+<h3>${user.user}</h3>
+<p>
+Classement actuel : ${user.rank} (${user.score} points)<br />
+Matchs joués : ${user.wins + user.loses}<br />
+Victoires : ${user.wins}<br />
+Défaites : ${user.loses}<br />
+</p>
+<p>Matchs:
+% for match in matches:
+<%include file="/base_match.html" args="match=match"/>
+% endfor
+</div>
+</p>
+</div>
+</%def>

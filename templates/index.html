@@ -1,0 +1,37 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<div class="centered">
+<p>Classement:
+<center><table class="centered">
+<tr class="color3">
+<th>Rang</th><th>Nom</th><th>Score</th>
+</tr>
+<%
+  i = 0
+%>
+% for competitor in competitors:
+<tr class="color${i%2}">
+<td>${competitor.rank}.</td><td><a href="/user/${competitor.key().id()}">${competitor.user.nickname()}</a></td><td>${"%0.2f"%(competitor.score)}</td>
+</tr>
+<%
+  i += 1
+%>
+% endfor
+</table>
+<br />
+Inscrits, mais n'ont pas encore joué :
+% for newcomer in newcomers:
+${newcomer.user.nickname()} 
+% endfor
+</center>
+</p>
+<p>Derniers matchs&nbsp;:
+% for match in recent_matches:
+<%include file="/base_match.html" args="match=match"/>
+% endfor
+</div>
+</p>
+</div>
+</%def>
