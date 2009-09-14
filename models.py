@@ -55,6 +55,15 @@ def relative_time(date):
   return time
 
 
+def rfc3339date(date):
+  """Formats the given date in RFC 3339 format for feeds."""
+  if not date: return ''
+  date = date + datetime.timedelta(seconds=-time.timezone)
+  if time.daylight:
+    date += datetime.timedelta(seconds=time.altzone)
+  return date.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
 def is_registered(user):
   if User.all().filter('user =', user).get() is None:
     return False
@@ -99,8 +108,8 @@ def create_new_match(me, request):
   return match.key().id()
 
 
-def get_recent_matches():
-  return Match.all().order('-date').fetch(10)
+def get_recent_matches(n=10):
+  return Match.all().order('-date').fetch(n)
 
 
 def get_user(userid):
@@ -129,6 +138,15 @@ def get_last_score(user, date):
     return DEFAULT_SCORE
   else:
     return score_obj.score
+
+
+def get_scores(userid):
+  user = User.get_by_id(userid)
+  if user is None:
+    return None
+
+  scores = Score.all().filter('user =', user.user).fetch(100)
+  return scores
 
 
 def get_winner_looser(match):

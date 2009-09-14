@@ -4,6 +4,9 @@ import cgi
 import logging
 import os
 import models
+import re
+import datetime
+from datetime import date
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from google.appengine.api import users
@@ -140,6 +143,57 @@ class UserHandler(webapp.RequestHandler):
 
 #################################################
 
+class CompareHandler(webapp.RequestHandler):
+  def get(self):
+    requires_user(self)
+
+    param = self.request.get('users');
+    if not param or re.match('(\d-)*\d$', param) is None:
+      self.redirect('/')
+      return
+
+# TODO, si plus de 6 joueurs dans l'url, garder que les 6 premiers
+
+    # construct google charts url
+    userids = re.split('-', param)
+    chart_lines = []
+    usernames = []
+    for userid in userids:
+      usernames.append(str(models.get_user(userid).user))
+      scores = models.get_scores(int(userid))
+      if not scores is None:
+        x = []
+        y = []
+        for score in scores:
+          x.append(str((date.today() - score.date).days))
+          y.append("%d"%(round(score.score)))
+        chart_lines.append(",".join(x) + '|' + ",".join(y))
+    chart_url = '|'.join(chart_lines) + '*'.join(usernames)
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/compare.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'chart_url': chart_url
+    }
+
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+#################################################
+
+class FeedHandler(webapp.RequestHandler):
+  def get(self):
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/feed.xml')
+    template_values = {
+      'entries': models.get_recent_matches(30) 
+    }
+
+    self.response.headers['Content-Type'] = 'application/atom+xml; charset=utf-8'
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+#################################################
+
 class MainHandler(webapp.RequestHandler):
   def get(self):
     template_file = os.path.join(os.path.dirname(__file__), 'templates/index.html')
@@ -162,7 +216,9 @@ application = webapp.WSGIApplication(
     ('/register', RegisterHandler),
     ('/match/add', AddMatchHandler),
     ('/user/([0-9]+)', UserHandler),
-    ('/.*', NotFoundPageHandler)
+    ('/users/compare', CompareHandler),
+    ('/feed.rss', FeedHandler),
+    ('/.*', NotFoundPageHandler),
   ], debug=True)
 
 mylookup = TemplateLookup(directories=['templates'])
