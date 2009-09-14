@@ -19,7 +19,7 @@
   % for entry in entries:
   <entry>
     <title type="text">Match du ${entry.date}</title>
-    <link rel="alternate" type="text/html" href="http://squashtai.appspot.com}"/>
+    <link rel="alternate" type="text/html" href="http://squashtai.appspot.com"/>
     <id>http://squashtai.appspot.com/entry/${entry.key().id()}</id>
     <updated>${models.rfc3339date(entry.date)}</updated>
     <summary type="html"><![CDATA[${entry.player1}
