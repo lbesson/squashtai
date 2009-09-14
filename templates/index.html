@@ -3,8 +3,8 @@
 
 <%def name="body()">
 <div class="centered">
-<p>Classement:
-<center><table class="centered">
+<p>Classement:</p>
+<table class="centered">
 <tr class="color3">
 <th>Rang</th><th>Nom</th><th>Score</th>
 </tr>
@@ -20,18 +20,17 @@
 %>
 % endfor
 </table>
-<br />
+<p>
 Inscrits, mais n'ont pas encore joué :
 % for newcomer in newcomers:
 ${newcomer.user.nickname()} 
 % endfor
-</center>
 </p>
-<p>Derniers matchs&nbsp;:
+<p>Derniers matchs&nbsp;:</p>
+<div>
 % for match in recent_matches:
 <%include file="/base_match.html" args="match=match"/>
 % endfor
 </div>
-</p>
 </div>
 </%def>
