@@ -15,6 +15,8 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 
+COLORS = [ '003DF5', 'F5003D', '3DF500', 'F5F500', 'FF70B8', 'CC6600' ]
+
 ###############################################################
 
 def is_admin():
@@ -148,15 +150,17 @@ class CompareHandler(webapp.RequestHandler):
     requires_user(self)
 
     param = self.request.get('users');
-    if not param or re.match('(\d-)*\d$', param) is None:
+    if not param or re.match('(\d+-)*\d+$', param) is None:
       self.redirect('/')
       return
 
-# TODO, si plus de 6 joueurs dans l'url, garder que les 6 premiers
-
     # construct google charts url
     userids = re.split('-', param)
-    chart_lines = []
+    userids = userids[:6] # keep only forst 6 entries
+    min_score = 10000
+    max_score = 0
+    oldest = 0
+    charts = []
     usernames = []
     for userid in userids:
       usernames.append(str(models.get_user(userid).user))
@@ -165,11 +169,26 @@ class CompareHandler(webapp.RequestHandler):
         x = []
         y = []
         for score in scores:
-          x.append(str((date.today() - score.date).days))
-          y.append("%d"%(round(score.score)))
-        chart_lines.append(",".join(x) + '|' + ",".join(y))
-    chart_url = '|'.join(chart_lines) + '*'.join(usernames)
+          x.append((date.today() - score.date).days)
+          y.append(int(round(score.score)))
+          min_score = min(int(round(score.score)), min_score)
+          max_score = max(int(round(score.score)), max_score)
+          oldest = max((date.today() - score.date).days, oldest)
+          # ajouter aujourd'hui si pas dedans... TODO
+        charts.append([ x, y ])
 
+    def adapt_date(d): return str((oldest - d) * 100 / oldest)
+    def adapt_score(s): return str((s - min_score) * 100 / (max_score - min_score))
+    def adapt_chart(l): return [ map(adapt_date, l[0]), map(adapt_score, l[1]) ]
+    charts = map(adapt_chart, charts)
+
+    chart_url = 'http://chart.apis.google.com/chart?chs=600x250&cht=lxy'+\
+                '&chco=003DF5,F5003D,3DF500,F5F500,FF70B8,CC6600&chd=t:'
+    chart_data = []
+    for chart in charts:
+      chart_data.append(','.join(chart[0]) + '|' + ','.join(chart[1]))
+    chart_url += '|'.join(chart_data) + '&chdl=' + '|'.join(usernames)
+      
     template_file = os.path.join(os.path.dirname(__file__), 'templates/compare.html')
     template_values = {
       'greeting': get_greeting(),
