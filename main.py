@@ -174,11 +174,13 @@ class CompareHandler(webapp.RequestHandler):
           min_score = min(int(round(score.score)), min_score)
           max_score = max(int(round(score.score)), max_score)
           oldest = max((date.today() - score.date).days, oldest)
-          # ajouter aujourd'hui si pas dedans... TODO
+        if x.count(0) == 0:
+          x.append(0)
+          y.append(y[-1])
         charts.append([ x, y ])
 
     def adapt_date(d): return str((oldest - d) * 100 / oldest)
-    def adapt_score(s): return str((s - min_score) * 100 / (max_score - min_score))
+    def adapt_score(s): return str((s - min_score + 10) * 100 / (max_score - min_score + 10))
     def adapt_chart(l): return [ map(adapt_date, l[0]), map(adapt_score, l[1]) ]
     charts = map(adapt_chart, charts)
 
