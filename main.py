@@ -170,9 +170,9 @@ class CompareHandler(webapp.RequestHandler):
         y = []
         for score in scores:
           x.append((date.today() - score.date).days)
-          y.append(int(round(score.score)))
-          min_score = min(int(round(score.score)), min_score)
-          max_score = max(int(round(score.score)), max_score)
+          y.append(round(score.score))
+          min_score = min(round(score.score), min_score)
+          max_score = max(round(score.score), max_score)
           oldest = max((date.today() - score.date).days, oldest)
         if x.count(0) == 0:
           x.append(0)
