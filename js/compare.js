@@ -18,6 +18,9 @@ function checkboxClicked(event) {
 
 $$('.rank_chkbox input').each(function(obj){
   obj.observe('click', checkboxClicked);
+  if ($F(obj) != null) {
+    $(obj).up().previous().addClassName('selected');
+  }
 });
 
 Event.observe('compare_btn', 'click', function(event) {
