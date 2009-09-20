@@ -140,3 +140,14 @@ td, th {
   padding: 5px;
 }
 
+tr:hover .rank_chkbox, tr .rank_number {
+  display: inline;
+}
+
+tr .rank_chkbox, tr:hover .rank_number {
+  display: none;
+}
+
+.rank_number.selected {
+  font-weight: bold;
+}
