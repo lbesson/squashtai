@@ -14,8 +14,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+MAX_CHART_ENTRIES = 15 ## You need at least as much color as MAX_CHART_ENTRIES
+COLORS = [ '003DF5', 'F5003D', '3DF500', 'F5F500', 'FF70B8',
+           'CC6600', 'F5B800', '00991A', '00CCFF', 'CCFF00',
+           'B300FF', '3D3D3D', '5CFFAD', 'CC0099', 'BDBDBD'  ]
 
-COLORS = [ '003DF5', 'F5003D', '3DF500', 'F5F500', 'FF70B8', 'CC6600' ]
 
 ###############################################################
 
@@ -172,7 +175,7 @@ class CompareHandler(webapp.RequestHandler):
 
     # construct google charts url
     userids = re.split('-', param)
-    userids = userids[:6] # keep only forst 6 entries
+    userids = userids[:MAX_CHART_ENTRIES] # keep only first n entries
     min_score = 10000
     max_score = 0
     oldest = 0
@@ -200,8 +203,8 @@ class CompareHandler(webapp.RequestHandler):
     def adapt_chart(l): return [ map(adapt_date, l[0]), map(adapt_score, l[1]) ]
     charts = map(adapt_chart, charts)
 
-    chart_url = 'http://chart.apis.google.com/chart?chs=600x250&cht=lxy'+\
-                '&chco=003DF5,F5003D,3DF500,F5F500,FF70B8,CC6600&chd=t:'
+    chart_url = 'http://chart.apis.google.com/chart?chs=600x250&cht=lxy&chco='+\
+                ','.join(COLORS[:len(userids)]) + '&chd=t:'
     chart_data = []
     for chart in charts:
       chart_data.append(','.join(chart[0]) + '|' + ','.join(chart[1]))
