@@ -102,6 +102,22 @@ class AddMatchHandler(webapp.RequestHandler):
 
 #################################################
 
+class DeleteMatchHandler(webapp.RequestHandler):
+  def get(self, matchid):
+    requires_admin(self)
+
+    match_for_computation = models.delete_match(long(matchid))
+
+    if match_for_computation is None:
+      self.redirect('/') # TODO error message
+      return
+
+    models.update_scores(match_for_computation)
+
+    self.redirect('/')
+
+#################################################
+
 class RegisterHandler(webapp.RequestHandler):
   def get(self):
     requires_user(self)
@@ -236,6 +252,7 @@ application = webapp.WSGIApplication(
     ('/', MainHandler),
     ('/register', RegisterHandler),
     ('/match/add', AddMatchHandler),
+    ('/match/delete/([0-9]+)', DeleteMatchHandler),
     ('/user/([0-9]+)', UserHandler),
     ('/users/compare', CompareHandler),
     ('/feed.rss', FeedHandler),

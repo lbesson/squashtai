@@ -15,7 +15,7 @@ Défaites : ${user.loses}<br />
 </p>
 <p>Matchs:
 % for match in matches:
-<%include file="/base_match.html" args="match=match"/>
+<%include file="/base_match.html" args="match=match, is_admin=is_admin"/>
 % endfor
 </div>
 </p>

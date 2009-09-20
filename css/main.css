@@ -110,6 +110,15 @@ a:hover {
   color: gray;
 }
 
+.delete_link {
+  position: absolute;
+  display: none;
+}
+
+.match:hover .delete_link {
+  display: block;
+}
+
 table {
   border: 1px solid #6b90da;
   border-collapse: collapse;

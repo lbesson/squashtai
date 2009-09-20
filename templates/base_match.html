@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-<%page args="match"/>
+<%page args="match, is_admin"/>
 <%
   import models
 %>
@@ -7,6 +7,12 @@
 <div class="date">
 ${models.relative_time(match.date)}
 </div>
+% if is_admin:
+<div class="delete_link">
+<a href="/match/delete/${match.key().id()}"\
+   onclick="if (!confirm('Êtes vous sur de vouloir supprimer ce match ?')) return false;">[supprimer]</a>
+</div>
+% endif
 ${match.player1}
 % if match.score1 == 3:
 <b>${match.score1}</b>

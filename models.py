@@ -21,6 +21,7 @@ class Match(db.Model):
   score1 = db.IntegerProperty(choices=SCORE)
   score2 = db.IntegerProperty(choices=SCORE)
 
+###############################################################
 
 class User(db.Model):
   user = db.UserProperty()
@@ -29,12 +30,14 @@ class User(db.Model):
   loses = db.IntegerProperty(default=0)
   rank = db.IntegerProperty(default=0)
 
+###############################################################
 
 class Score(db.Model):
   user = db.UserProperty()
   date = db.DateProperty()
   score = db.FloatProperty(default=DEFAULT_SCORE)
   
+###############################################################
 
 def relative_time(date):
   delta = relativedelta.relativedelta(date.today(), date)
@@ -54,6 +57,7 @@ def relative_time(date):
     time = 'Aujourd\'hui'
   return time
 
+###############################################################
 
 def rfc3339date(date):
   """Formats the given date in RFC 3339 format for feeds."""
@@ -63,12 +67,14 @@ def rfc3339date(date):
     date += datetime.timedelta(seconds=time.altzone)
   return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
+###############################################################
 
 def is_registered(user):
   if User.all().filter('user =', user).get() is None:
     return False
   return True
 
+###############################################################
 
 def register_user(user):
   if user is None or User.all().filter('user =', user).get():
@@ -79,18 +85,22 @@ def register_user(user):
     user_entry.put()
     return
 
+###############################################################
 
 def get_possible_opponents():
   return User.all().order('user').fetch(100)
 
+###############################################################
 
 def get_possible_opponents_by_rank():
   return User.all().filter('score !=', 500.0).order('-score').fetch(100)
 
+###############################################################
 
 def get_new_players():
   return User.all().filter('score =', 500.0).fetch(100)
 
+###############################################################
 
 def create_new_match(me, request):
   match = Match()
@@ -107,14 +117,33 @@ def create_new_match(me, request):
   match.put()
   return match.key().id()
 
+###############################################################
+
+def delete_match(matchid):
+  match_to_delete = Match.get_by_id(matchid)
+
+  if match_to_delete is None:
+    return None
+
+  # retrieve the match juste before this one (for recomputing scores)
+  # FIXME we assume there is at least one match the same day or before
+  match_for_computation = Match.all().filter('date <=', match_to_delete.date).get()
+
+  match_to_delete.delete()
+
+  return match_for_computation.key().id()
+
+###############################################################
 
 def get_recent_matches(n=10):
   return Match.all().order('-date').fetch(n)
 
+###############################################################
 
 def get_user(userid):
   return User.get_by_id(long(userid))
 
+###############################################################
 
 def match_compare(x, y):
   if x.date > y.date:
@@ -124,6 +153,7 @@ def match_compare(x, y):
   else:
     return 1
 
+###############################################################
 
 def get_user_matches(user):
   matches = Match.all().order('-date').filter('player1 =', user).fetch(100) \
@@ -131,6 +161,7 @@ def get_user_matches(user):
   matches.sort(match_compare)
   return matches
 
+###############################################################
 
 def get_last_score(user, date):
   score_obj = Score.all().filter('date <=', date).filter('user =', user).order('-date').get()
@@ -139,6 +170,7 @@ def get_last_score(user, date):
   else:
     return score_obj.score
 
+###############################################################
 
 def get_scores(userid):
   user = User.get_by_id(userid)
@@ -148,6 +180,7 @@ def get_scores(userid):
   scores = Score.all().filter('user =', user.user).fetch(100)
   return scores
 
+###############################################################
 
 def get_winner_looser(match):
   if match.score1 > match.score2:
@@ -155,6 +188,7 @@ def get_winner_looser(match):
   else:
     return [ match.player2, match.player1, abs(match.score1 - match.score2) ]
 
+###############################################################
 
 def update_or_create_score(score, user, date, win=True):
   # update or create Score object
@@ -170,12 +204,16 @@ def update_or_create_score(score, user, date, win=True):
   user_obj.score = float(score)
   user_obj.put()
 
+###############################################################
+
 def update_wins_loses(winner, looser):
   winner_obj = User.all().filter('user =', winner).get()
   looser_obj = User.all().filter('user =', looser).get()
   winner_obj.wins += 1
   looser_obj.loses += 1
   db.put([ winner_obj, looser_obj ])
+
+###############################################################
 
 def compute_ranks():
   users = User.all().filter('score !=', 500.0).order('-score').fetch(1000) # we suppose we will never have that much users..
@@ -188,6 +226,8 @@ def compute_ranks():
     user.rank = rank
   db.put(users)
 
+###############################################################
+
 def update_scores(match_id):
   current_match = Match.get_by_id(match_id)
   
@@ -195,26 +235,21 @@ def update_scores(match_id):
   [ winner, looser, gap ] = get_winner_looser(current_match)
   update_wins_loses(winner, looser)
 
-  # get all matches that took place after this one 
-  # FIXME what if some matches happen the same day? - we don't really care
+  # get all matches that took place after this one, or the same day
+  # FIXME what if some matches happen the same day? -> we don't really care
   matches = Match.all().order('date').filter('date >=', current_match.date).fetch(100)
 
-  # erase scores that need to be re-computed ### C'est ca qui marche pas
+  # erase scores that need to be re-computed
   obsolete_scores = Score.all().filter('date >=', current_match.date).fetch(1000)
   db.delete(obsolete_scores)
-  #return
 
   for match in matches:
     [ winner, looser, gap ] = get_winner_looser(match)
     winner_previous_score = get_last_score(winner, match.date)
     looser_previous_score = get_last_score(looser, match.date)
     [ winner_new_score, looser_new_score ] = elo.compute_score(winner_previous_score, looser_previous_score, gap)
-    #print 'old win' + str(winner_previous_score)
-    #print 'old lose' + str(looser_previous_score)
 
     update_or_create_score(winner_new_score, winner, match.date, True)
     update_or_create_score(looser_new_score, looser, match.date, False)
-    #print 'new win' + str(winner_new_score)
-    #print 'new lose' + str(looser_new_score)
 
   compute_ranks()
