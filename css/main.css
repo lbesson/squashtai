@@ -156,3 +156,8 @@ tr .rank_chkbox, tr:hover .rank_number {
   margin: 0;
   padding: 0;
 }
+
+h3 img {
+  border: 1px solid #d0d0d0;
+  padding: 2px;
+}

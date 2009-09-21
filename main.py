@@ -367,7 +367,7 @@ class ProfileHandler(webapp.RequestHandler):
     # upload image if relevant
     if self.request.get('avatar'):
       try:
-        avatar = images.resize(self.request.get("avatar"), 50, 50)
+        avatar = images.resize(self.request.get("avatar"), 80, 80)
       except images.Error:
         self.redirect('/profile')
         return
