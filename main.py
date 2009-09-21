@@ -284,7 +284,7 @@ class CompareHandler(webapp.RequestHandler):
     charts = []
     usernames = []
     for userid in userids:
-      usernames.append(str(models.get_user(userid).user))
+      usernames.append(str(models.get_user(userid).nickname))
       scores = models.get_scores(int(userid))
       if not scores is None:
         x = []
