@@ -151,3 +151,8 @@ tr .rank_chkbox, tr:hover .rank_number {
 .rank_number.selected {
   font-weight: bold;
 }
+
+.rank_chkbox input {
+  margin: 0;
+  padding: 0;
+}
