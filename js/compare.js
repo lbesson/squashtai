@@ -4,7 +4,7 @@ function checkboxClicked(event) {
   if ($F(this) == null) { // unselected
     users_to_compare = users_to_compare.without(this.id.substr(4));
     $(this).up().previous().removeClassName('selected');
-    if (users_to_compare.length == 0) {
+    if (users_to_compare.length == 1) {
       $('compare_btn').hide();
     }
   } else { // selected
