@@ -10,10 +10,12 @@ from datetime import date
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from google.appengine.api import users
+from google.appengine.api import mail
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+ADMIN_EMAIL = 'tai.squash@gmail.com'
 MAX_CHART_ENTRIES = 15 ## You need at least as much color as MAX_CHART_ENTRIES
 COLORS = [ '003DF5', 'F5003D', '3DF500', 'F5F500', 'FF70B8',
            'CC6600', 'F5B800', '00991A', '00CCFF', 'CCFF00',
@@ -30,6 +32,12 @@ def is_registered():
   if not user:
     return False
   return models.is_registered(user)
+
+def is_pending():
+  user = users.get_current_user()
+  if not user:
+    return False
+  return models.is_pending(user)
 
 def requires_user(handler):
   user = users.get_current_user()
@@ -126,20 +134,95 @@ class RegisterHandler(webapp.RequestHandler):
     requires_user(self)
 
     template_file = os.path.join(os.path.dirname(__file__), 'templates/register.html')
-    if not is_registered():
-      models.register_user(users.get_current_user())
-      is_already_registered = False
-    else:
-      is_already_registered = True
+
+    if not is_registered() and not is_pending(): # add to pending users
+      models.add_pending_user(users.get_current_user())
+      status = 'new pending'
+      # send email to both user and admin
+      sender_address = 'Squash TAI <tai.squash@gmail.com>'
+      to = users.get_current_user().email()
+      subject = "Inscription à squashtai"
+      body = """
+Votre inscription a bien été prise en compte, et est en attente de validation.
+Un nouveau mail vous sera envoyé lorsque votre inscription deviendra effective.
+
+Vous pouvez répondre à cette adresse pour plus d'information.
+
+Squash TAI
+"""
+      mail.send_mail(sender_address, to, subject, body)
+      subject = "Demande d'inscription à squashtai"
+      body = """
+Nouvelle demande d'inscription pour %s.
+
+http://squashtai.appspot.com/users/pending
+"""
+      mail.send_mail_to_admins(sender_address, subject, body)
+
+    elif not is_registered(): # pending but not registered
+      status = 'already pending'
+
+    else: # already registered
+      status = 'already registered'
 
     template_values = {
       'greeting': get_greeting(),
       'is_admin': is_admin(),
       'is_registered': True,
-      'already_registered': is_already_registered
+      'status': status
     }
 
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+#################################################
+
+class PendingListHandler(webapp.RequestHandler):
+  def get(self):
+    requires_admin(self)
+
+    pending_users = models.get_pending_users()
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/pending.html')
+
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': True,
+      'pending_users': pending_users
+    }
+
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+#################################################
+
+class PendingHandler(webapp.RequestHandler):
+  def get(self, choice, pendingid):
+    requires_admin(self)
+
+    pending_user = models.get_pending_user(long(pendingid))
+
+    if pending_user is None:
+      self.redirect('/users/pending')
+      return
+
+    if choice == 'accept':
+      models.register_user(pending_user.user)
+      models.remove_pending_user(pending_user.user)
+      # send email
+      sender_address = 'Squash TAI <tai.squash@gmail.com>'
+      to = users.get_current_user().email()
+      subject = "Inscription à squashtai"
+      body = """
+Votre inscription a été validée, bienvenue !
+
+Squash TAI
+"""
+      mail.send_mail(sender_address, to, subject, body)
+
+    else:
+      models.remove_pending_user(pending_user.user)
+
+    self.redirect('/users/pending')
 
 #################################################
 
@@ -256,6 +339,8 @@ application = webapp.WSGIApplication(
     ('/match/delete/([0-9]+)', DeleteMatchHandler),
     ('/user/([0-9]+)', UserHandler),
     ('/users/compare', CompareHandler),
+    ('/users/pending', PendingListHandler),
+    ('/users/pending/(accept|refuse)/([0-9]+)', PendingHandler),
     ('/feed.rss', FeedHandler),
     ('/.*', NotFoundPageHandler),
   ], debug=True)

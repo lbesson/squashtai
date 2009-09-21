@@ -1,0 +1,22 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<div class="centered">
+% if len(pending_users):
+<ul>
+% for entry in pending_users:
+<li>
+${entry.user} \
+<a href="/users/pending/accept/${entry.key().id()}">[ Accepter ]</a> - \
+<a href="/users/pending/refuse/${entry.key().id()}">[ Refuser ]</a>
+</li>
+% endfor
+<ul>
+% else:
+Aucune inscription en attente de validation
+% endif
+</div>
+</p>
+</div>
+</%def>

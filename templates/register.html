@@ -3,10 +3,12 @@
 
 <%def name="body()">
 <p class="centered">
-% if already_registered:
-  Vous êtes déjà inscrit.
+% if status == 'new pending':
+  Votre demande d'inscription a bien été prise en compte, en attente de validation.
+% elif status == 'already pending':
+  Vous avez déjà une demande d'inscription en attente de validation.
 % else:
-  Votre inscription a été prise en compte.
+  Vous êtes déjà inscrit.
 % endif
 </p>
 </%def>

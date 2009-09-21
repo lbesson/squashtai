@@ -24,6 +24,9 @@
       % if not is_registered:
       | <a href="/register">Inscription</a>
       % endif
+      % if is_admin:
+      | <a href="/users/pending">Inscriptions en attente</a>
+      % endif
     </div>
   </div>
 

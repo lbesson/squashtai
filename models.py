@@ -36,6 +36,11 @@ class Score(db.Model):
   user = db.UserProperty()
   date = db.DateProperty()
   score = db.FloatProperty(default=DEFAULT_SCORE)
+
+###############################################################
+
+class PendingUser(db.Model):
+  user = db.UserProperty()
   
 ###############################################################
 
@@ -76,6 +81,13 @@ def is_registered(user):
 
 ###############################################################
 
+def is_pending(user):
+  if PendingUser.all().filter('user =', user).get() is None:
+    return False
+  return True
+
+###############################################################
+
 def register_user(user):
   if user is None or User.all().filter('user =', user).get():
     return
@@ -84,6 +96,36 @@ def register_user(user):
     user_entry.user = user
     user_entry.put()
     return
+
+###############################################################
+
+def add_pending_user(user):
+  if user is None or PendingUser.all().filter('user =', user).get():
+    return
+  else:
+    pending_user = PendingUser()
+    pending_user.user = user
+    pending_user.put()
+    return
+
+###############################################################
+
+def remove_pending_user(user):
+  if user is None:
+    return
+  pending_user = PendingUser.all().filter('user =', user).get()
+  pending_user.delete()
+  return
+
+###############################################################
+
+def get_pending_user(id):
+  return PendingUser.get_by_id(id)
+
+###############################################################
+
+def get_pending_users():
+  return PendingUser.all().fetch(10)
 
 ###############################################################
 
