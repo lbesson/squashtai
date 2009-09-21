@@ -5,6 +5,7 @@ import logging
 import os
 import models
 import re
+import sys
 import datetime
 from datetime import date
 from mako.template import Template
@@ -44,10 +45,22 @@ def requires_user(handler):
   if not user:
     handler.redirect(users.create_login_url(handler.request.uri))
 
+def requires_registered(handler):
+  user = users.get_current_user()
+  if not user:
+    handler.redirect(users.create_login_url(handler.request.uri))
+    return False
+  elif not is_registered():
+    error404(handler)
+    return False
+  else:
+    return True
+
 def requires_admin(handler):
   if not users.is_current_user_admin():
-    error404(self)
-    return
+    error404(handler)
+    return False
+  return True
 
 ###############################################################
 
@@ -86,7 +99,8 @@ class NotFoundPageHandler(webapp.RequestHandler):
 
 class AddMatchHandler(webapp.RequestHandler):
   def get(self):
-    requires_user(self)
+    if not requires_registered(self):
+      return
 
     template_file = os.path.join(os.path.dirname(__file__), 'templates/add_match.html')
     template_values = {
@@ -115,7 +129,8 @@ class AddMatchHandler(webapp.RequestHandler):
 
 class DeleteMatchHandler(webapp.RequestHandler):
   def get(self, matchid):
-    requires_admin(self)
+    if not requires_admin(self):
+      return
 
     match_for_computation = models.delete_match(long(matchid))
 
@@ -178,7 +193,8 @@ http://squashtai.appspot.com/users/pending
 
 class PendingListHandler(webapp.RequestHandler):
   def get(self):
-    requires_admin(self)
+    if not requires_admin(self):
+      return
 
     pending_users = models.get_pending_users()
 
@@ -197,7 +213,8 @@ class PendingListHandler(webapp.RequestHandler):
 
 class PendingHandler(webapp.RequestHandler):
   def get(self, choice, pendingid):
-    requires_admin(self)
+    if not requires_admin(self):
+      return
 
     pending_user = models.get_pending_user(long(pendingid))
 

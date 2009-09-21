@@ -19,9 +19,10 @@
       <img src="/images/logo.png" alt="Squash TAI" />
     </div>
     <div id="shortcuts">
-      <a href="/">Classement</a> |
-      <a href="/match/add">Ajouter un match</a>
-      % if not is_registered:
+      <a href="/">Classement</a>
+      % if is_registered:
+      | <a href="/match/add">Ajouter un match</a>
+      % else:
       | <a href="/register">Inscription</a>
       % endif
       % if is_admin:
