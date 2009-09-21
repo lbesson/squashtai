@@ -3,7 +3,7 @@
 
 <%def name="body()">
 <div class="centered">
-<h3>${user.user.email()} <img src="/avatar/${user.key().id()}" alt="avatar" /></h3>
+<h3>${user.user.email()}<br /><img src="/avatar/${user.key().id()}" alt="avatar" /></h3>
 <form id="edit_form" enctype="multipart/form-data" action="" method="post">
 <label for="nickname">Nom d'utilisateur&nbsp;:</label>
 <input id="nickname" value="${user.nickname}" name="nickname" />
