@@ -9,7 +9,7 @@
 <h3>${user.nickname}
 <br /><img src="/avatar/${user.key().id()}" /></h3>
 <p>
-Classement actuel : ${user.rank} (${user.score} points)<br />
+Classement actuel : ${user.rank} (${"%0.2f"%(user.score)} points)<br />
 Matchs joués : ${user.wins + user.loses}<br />
 Victoires : ${user.wins}<br />
 Défaites : ${user.loses}<br />
