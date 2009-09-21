@@ -44,6 +44,8 @@ def requires_user(handler):
   user = users.get_current_user()
   if not user:
     handler.redirect(users.create_login_url(handler.request.uri))
+    return False
+  return True
 
 def requires_registered(handler):
   user = users.get_current_user()
@@ -113,7 +115,8 @@ class AddMatchHandler(webapp.RequestHandler):
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
 
   def post(self):
-    requires_user(self)
+    if not requires_registered(self):
+      return
 
     match_id = models.create_new_match(users.get_current_user(), self.request)
 
@@ -146,7 +149,8 @@ class DeleteMatchHandler(webapp.RequestHandler):
 
 class RegisterHandler(webapp.RequestHandler):
   def get(self):
-    requires_user(self)
+    if not requires_user(self):
+      return
 
     template_file = os.path.join(os.path.dirname(__file__), 'templates/register.html')
 
@@ -332,6 +336,37 @@ class FeedHandler(webapp.RequestHandler):
 
 #################################################
 
+class ProfileHandler(webapp.RequestHandler):
+  def get(self):
+    if not requires_registered(self):
+      return
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/profile.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'user': models.get_user_(users.get_current_user())
+    }
+
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+   ## post -> mettre a jour le nickname dans la page user, mais aussi pour tous les matches (en une fois si possible) 2 max TODO
+  def post(self):
+    if not requires_registered(self):
+      return
+
+    if not self.request.get('nickname'):
+      self.redirect('/profile')
+      return
+
+    # update nickname
+    models.update_nickname(users.get_current_user(), self.request.get('nickname'))
+
+    self.redirect('/profile')
+
+#################################################
+
 class MainHandler(webapp.RequestHandler):
   def get(self):
     template_file = os.path.join(os.path.dirname(__file__), 'templates/index.html')
@@ -352,6 +387,7 @@ application = webapp.WSGIApplication(
   [
     ('/', MainHandler),
     ('/register', RegisterHandler),
+    ('/profile', ProfileHandler),
     ('/match/add', AddMatchHandler),
     ('/match/delete/([0-9]+)', DeleteMatchHandler),
     ('/user/([0-9]+)', UserHandler),

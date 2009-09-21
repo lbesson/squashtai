@@ -15,7 +15,7 @@
 <tr class="color${i%2}">
 <td><span class="rank_number">${competitor.rank}.</span><span class="rank_chkbox">
 <input type="checkbox"  id="chk_${competitor.key().id()}" /></span></td>
-<td><a href="/user/${competitor.key().id()}">${competitor.user.nickname()}</a></td>
+<td><a href="/user/${competitor.key().id()}">${competitor.nickname}</a></td>
 <td>${"%0.2f"%(competitor.score)}</td>
 </tr>
 <%

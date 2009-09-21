@@ -13,7 +13,7 @@ ${models.relative_time(match.date)}
    onclick="if (!confirm('Êtes vous sur de vouloir supprimer ce match ?')) return false;">[supprimer]</a>
 </div>
 % endif
-${match.player1}
+${match.nickname1}
 % if match.score1 == 3:
 <b>${match.score1}</b>
 % else:
@@ -25,5 +25,5 @@ ${match.score1}
 % else:
 ${match.score2}
 % endif
-${match.player2}
+${match.nickname2}
 </div>

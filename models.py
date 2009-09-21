@@ -6,6 +6,7 @@ import copy
 import time
 import relativedelta
 import elo
+import cgi
 from datetime import date
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -18,6 +19,8 @@ class Match(db.Model):
   date = db.DateProperty(auto_now_add=True)
   player1 = db.UserProperty()
   player2 = db.UserProperty()
+  nickname1 = db.StringProperty()
+  nickname2 = db.StringProperty()
   score1 = db.IntegerProperty(choices=SCORE)
   score2 = db.IntegerProperty(choices=SCORE)
 
@@ -25,6 +28,7 @@ class Match(db.Model):
 
 class User(db.Model):
   user = db.UserProperty()
+  nickname = db.StringProperty()
   score = db.FloatProperty(default=DEFAULT_SCORE)
   wins = db.IntegerProperty(default=0)
   loses = db.IntegerProperty(default=0)
@@ -94,6 +98,7 @@ def register_user(user):
   else:
     user_entry = User()
     user_entry.user = user
+    user_entry.nickname = user.nickname()
     user_entry.put()
     return
 
@@ -147,7 +152,9 @@ def get_new_players():
 def create_new_match(me, request):
   match = Match()
   match.player1 = me
+  match.nickname1 = User.all().filter('user =', me).get().nickname
   match.player2 = User.get_by_id(long(request.get('player2'))).user
+  match.nickname2 = match.player2.nickname()
   match.score1 = long(request.get('score1'))
   match.score2 = long(request.get('score2'))
   match.date = date.today() - datetime.timedelta(days=long(request.get('date')))
@@ -184,6 +191,11 @@ def get_recent_matches(n=10):
 
 def get_user(userid):
   return User.get_by_id(long(userid))
+
+###############################################################
+
+def get_user_(user):
+  return User.all().filter('user =', user).get()
 
 ###############################################################
 
@@ -295,3 +307,26 @@ def update_scores(match_id):
     update_or_create_score(looser_new_score, looser, match.date, False)
 
   compute_ranks()
+
+###############################################################
+
+def update_nickname(user, new_nickname):
+  user_obj = get_user_(user)
+
+  if user_obj is None or user_obj.nickname == cgi.escape(new_nickname):
+    return
+
+  # update User
+  user_obj.nickname = cgi.escape(new_nickname)
+  user_obj.put()
+
+  # update matches
+  matches = Match.all().filter('player1 =', user).fetch(100) # we don't care if it isn't chnaged for older matches....
+  for match in matches:
+    match.nickname1 = cgi.escape(new_nickname)
+  db.put(matches)
+
+  matches = Match.all().filter('player2 =', user).fetch(100)
+  for match in matches:
+    match.nickname2 = cgi.escape(new_nickname)
+  db.put(matches)
