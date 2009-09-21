@@ -156,7 +156,7 @@ Squash TAI
 Nouvelle demande d'inscription pour %s.
 
 http://squashtai.appspot.com/users/pending
-"""
+""" % users.get_current_user().email()
       mail.send_mail_to_admins(sender_address, subject, body)
 
     elif not is_registered(): # pending but not registered
