@@ -33,6 +33,7 @@ class User(db.Model):
   wins = db.IntegerProperty(default=0)
   loses = db.IntegerProperty(default=0)
   rank = db.IntegerProperty(default=0)
+  avatar = db.BlobProperty()
 
 ###############################################################
 
@@ -136,6 +137,17 @@ def get_pending_users():
 
 def get_possible_opponents():
   return User.all().order('user').fetch(100)
+
+###############################################################
+
+def update_avatar(user, data):
+  user_obj = get_user_(user)
+
+  if user_obj is None:
+    return
+
+  user_obj.avatar = db.Blob(data)
+  user_obj.put()
 
 ###############################################################
 

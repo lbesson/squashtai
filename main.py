@@ -12,6 +12,7 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 from google.appengine.api import users
 from google.appengine.api import mail
+from google.appengine.api import images
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -351,19 +352,43 @@ class ProfileHandler(webapp.RequestHandler):
 
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
 
-   ## post -> mettre a jour le nickname dans la page user, mais aussi pour tous les matches (en une fois si possible) 2 max TODO
   def post(self):
     if not requires_registered(self):
       return
 
-    if not self.request.get('nickname'):
+    if not self.request.get('nickname') and not self.request.get('avatar'):
       self.redirect('/profile')
       return
 
     # update nickname
-    models.update_nickname(users.get_current_user(), self.request.get('nickname'))
+    if self.request.get('nickname'):
+      models.update_nickname(users.get_current_user(), self.request.get('nickname'))
+
+    # upload image if relevant
+    if self.request.get('avatar'):
+      try:
+        avatar = images.resize(self.request.get("avatar"), 30, 30)
+      except images.Error:
+        self.redirect('/profile')
+        return
+
+      models.update_avatar(users.get_current_user(), avatar)
 
     self.redirect('/profile')
+
+#################################################
+
+class AvatarHandler(webapp.RequestHandler):
+  def get(self, userid):
+    user = models.get_user(long(userid))
+    if user is None or not hasattr(user, 'avatar') or user.avatar is None:
+      self.redirect('/images/default_avatar.png')
+      return
+
+    else:
+      self.response.headers['Content-Type'] = "image/png"
+      self.response.out.write(user.avatar)
+      return
 
 #################################################
 
@@ -395,8 +420,9 @@ application = webapp.WSGIApplication(
     ('/users/pending', PendingListHandler),
     ('/users/pending/(accept|refuse)/([0-9]+)', PendingHandler),
     ('/feed.rss', FeedHandler),
+    ('/avatar/([0-9]+)', AvatarHandler),
     ('/.*', NotFoundPageHandler),
-  ], debug=True)
+  ], debug=False)
 
 mylookup = TemplateLookup(directories=['templates'])
 

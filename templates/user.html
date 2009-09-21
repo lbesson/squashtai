@@ -6,7 +6,8 @@
   import models
 %>
 <div class="centered">
-<h3>${user.nickname}</h3>
+<h3>${user.nickname}
+<br /><img src="/avatar/${user.key().id()}" /></h3>
 <p>
 Classement actuel : ${user.rank} (${user.score} points)<br />
 Matchs joués : ${user.wins + user.loses}<br />
