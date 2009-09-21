@@ -166,8 +166,6 @@ class UserHandler(webapp.RequestHandler):
 
 class CompareHandler(webapp.RequestHandler):
   def get(self):
-    requires_user(self)
-
     param = self.request.get('users');
     if not param or re.match('(\d+-)*\d+$', param) is None:
       self.redirect('/')
