@@ -228,11 +228,9 @@ class PendingHandler(webapp.RequestHandler):
       return
 
     if choice == 'accept':
-      models.register_user(pending_user.user)
-      models.remove_pending_user(pending_user.user)
       # send email
       sender_address = 'Squash TAI <tai.squash@gmail.com>'
-      to = users.get_current_user().email()
+      to = pending_user.user.email()
       subject = "Inscription à squashtai"
       body = """
 Votre inscription a été validée, bienvenue !
@@ -240,6 +238,9 @@ Votre inscription a été validée, bienvenue !
 Squash TAI
 """
       mail.send_mail(sender_address, to, subject, body)
+
+      models.register_user(pending_user.user)
+      models.remove_pending_user(pending_user.user)
 
     else:
       models.remove_pending_user(pending_user.user)
