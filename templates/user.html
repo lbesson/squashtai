@@ -7,18 +7,17 @@
 %>
 <div class="centered">
 <h3>${user.nickname}
-<br /><img src="/avatar/${user.key().id()}" /></h3>
+<br /><img src="/avatar/${user.key().id()}" alt="avatar" /></h3>
 <p>
 Classement actuel : ${user.rank} (${"%0.2f"%(user.score)} points)<br />
 Matchs joués : ${user.wins + user.loses}<br />
 Victoires : ${user.wins}<br />
 Défaites : ${user.loses}<br />
 </p>
-<p>Matchs:
+<div>Matchs:
 % for match in matches:
 <%include file="/base_match.html" args="match=match, is_admin=is_admin"/>
 % endfor
 </div>
-</p>
 </div>
 </%def>
