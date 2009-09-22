@@ -18,7 +18,7 @@ Date du match:
 </select>
 <br />
 <br />
-<span class="player">${me}</span>
+<span class="player">${me.nickname}</span>
 <select name="score1" id="score1">
   <option value="0" selected="selected">0</option>
   <option value="1">1</option>
@@ -34,8 +34,8 @@ Date du match:
 </select>
 <select name="player2" id="player2">
 % for user in registered_users:
-  % if str(me) != user.user.nickname():
-  <option value="${user.key().id()}">${user.user.nickname()}</option>
+  % if str(me.nickname) != user.nickname:
+  <option value="${user.key().id()}">${user.nickname}</option>
   % endif
 % endfor
 </select>

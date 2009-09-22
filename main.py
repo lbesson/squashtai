@@ -110,7 +110,7 @@ class AddMatchHandler(webapp.RequestHandler):
       'greeting': get_greeting(),
       'is_admin': is_admin(),
       'is_registered': is_registered(),
-      'me': users.get_current_user(),
+      'me': models.get_user_(users.get_current_user()),
       'registered_users': models.get_possible_opponents() 
     }
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
