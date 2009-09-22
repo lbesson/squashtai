@@ -423,7 +423,7 @@ application = webapp.WSGIApplication(
     ('/feed.rss', FeedHandler),
     ('/avatar/([0-9]+)', AvatarHandler),
     ('/.*', NotFoundPageHandler),
-  ], debug=False)
+  ], debug=True)
 
 mylookup = TemplateLookup(directories=['templates'])
 

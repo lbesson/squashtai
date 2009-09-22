@@ -165,8 +165,9 @@ def create_new_match(me, request):
   match = Match()
   match.player1 = me
   match.nickname1 = User.all().filter('user =', me).get().nickname
-  match.player2 = User.get_by_id(long(request.get('player2'))).user
-  match.nickname2 = match.player2.nickname
+  user2_obj = User.get_by_id(long(request.get('player2')))
+  match.player2 = user2_obj.user
+  match.nickname2 = user2_obj.nickname
   match.score1 = long(request.get('score1'))
   match.score2 = long(request.get('score2'))
   match.date = date.today() - datetime.timedelta(days=long(request.get('date')))
