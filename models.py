@@ -51,6 +51,7 @@ class PendingUser(db.Model):
 
 class Comment(db.Model):
   sender = db.StringProperty(required=True)
+  senderid = db.IntegerProperty(required=True)
   text = db.TextProperty(required=True)
   date = db.DateTimeProperty(auto_now_add=True)
   
@@ -354,5 +355,10 @@ def update_nickname(user, new_nickname):
 ###############################################################
 
 def create_comment(sender, text):
-  comment = Comment(sender, cgi.escape(text))
+  comment = Comment(sender=sender.nickname, senderid=sender.key().id(), text=cgi.escape(text))
   comment.put()
+
+###############################################################
+
+def get_recent_comments(n=10):
+  return Comment.all().order('-date').fetch(n)

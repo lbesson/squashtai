@@ -459,10 +459,42 @@ class AvatarHandler(webapp.RequestHandler):
 
 class XMPPHandler(webapp.RequestHandler):
   def post(self):
+    # check that the one is registered???
     message = xmpp.Message(self.request.POST)
-    models.create_comment(message.sender, message.body)
-    if message.body[0:5].lower() == 'hello':
-      message.reply("Greetings!")
+    user = get_user_(message.sender.split('/')[0])
+    if user is not None:
+      models.create_comment(user, message.body)
+      if message.body[0:5].lower() == 'hello':
+        message.reply("Greetings!")
+
+#################################################
+
+class CommentHandler(webapp.RequestHandler):
+  def get(self):
+    if not requires_registered(self):
+      return
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/comments.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'recent_comments': models.get_recent_comments()
+    }
+
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+  def post(self):
+    if not requires_registered(self):
+      return
+
+    if self.request.get('text'):
+      text = self.request.get('text')
+      user = models.get_user_(users.get_current_user())
+      models.create_comment(user, text)
+
+    self.redirect('/comment')
+    return
 
 #################################################
 
@@ -496,6 +528,7 @@ application = webapp.WSGIApplication(
     ('/users/pending/(accept|refuse)/([0-9]+)', PendingHandler),
     ('/feed.rss', FeedHandler),
     ('/avatar/([0-9]+)', AvatarHandler),
+    ('/comment', CommentHandler),
     ('/_ah/xmpp/message/chat/', XMPPHandler),
     ('/.*', NotFoundPageHandler),
   ], debug=True)
