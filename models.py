@@ -46,6 +46,13 @@ class Score(db.Model):
 
 class PendingUser(db.Model):
   user = db.UserProperty()
+
+###############################################################
+
+class Comment(db.Model):
+  sender = db.StringProperty(required=True)
+  text = db.TextProperty(required=True)
+  date = db.DateTimeProperty(auto_now_add=True)
   
 ###############################################################
 
@@ -343,3 +350,9 @@ def update_nickname(user, new_nickname):
   for match in matches:
     match.nickname2 = cgi.escape(new_nickname)
   db.put(matches)
+
+###############################################################
+
+def create_comment(sender, text):
+  comment = Comment(sender, cgi.escape(text))
+  comment.put()

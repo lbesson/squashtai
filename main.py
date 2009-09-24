@@ -14,6 +14,7 @@ from mako.lookup import TemplateLookup
 from google.appengine.api import users
 from google.appengine.api import mail
 from google.appengine.api import images
+from google.appengine.api import xmpp
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -456,6 +457,15 @@ class AvatarHandler(webapp.RequestHandler):
 
 #################################################
 
+class XMPPHandler(webapp.RequestHandler):
+  def post(self):
+    message = xmpp.Message(self.request.POST)
+    create_comment(message.sender, message.body)
+    if message.body[0:5].lower() == 'hello':
+      message.reply("Greetings!")
+
+#################################################
+
 class MainHandler(webapp.RequestHandler):
   def get(self):
     template_file = os.path.join(os.path.dirname(__file__), 'templates/index.html')
@@ -486,6 +496,7 @@ application = webapp.WSGIApplication(
     ('/users/pending/(accept|refuse)/([0-9]+)', PendingHandler),
     ('/feed.rss', FeedHandler),
     ('/avatar/([0-9]+)', AvatarHandler),
+    ('/_ah/xmpp/message/chat/', XMPPHandler),
     ('/.*', NotFoundPageHandler),
   ], debug=True)
 
