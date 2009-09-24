@@ -7,6 +7,7 @@ import models
 import re
 import sys
 import datetime
+import elo
 from datetime import date
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -131,6 +132,65 @@ class AddMatchHandler(webapp.RequestHandler):
 
 #################################################
 
+class SimulateHandler(webapp.RequestHandler):
+  def get(self):
+    if not requires_registered(self):
+      return
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/simulate.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'me': models.get_user_(users.get_current_user()),
+      'registered_users': models.get_possible_opponents(),
+      'score1': 0,
+      'score2': 0,
+      'opponent': 0,
+      'userscore1': 0,
+      'userscore2': 0
+    }
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+  def post(self):
+    if not requires_registered(self):
+      return
+
+    score1 = long(self.request.get('score1', 0))
+    score2 = long(self.request.get('score2', 0))
+    opponent = long(self.request.get('player2', 0))
+
+    if (score1 != 3 and score2 != 3) or (score1 == 3 and score2 == 3):
+      self.redirect('/match/simulate')
+      return
+
+    me = models.get_user_(users.get_current_user())
+    userscore1 = me.score
+    userscore2 = models.get_user(opponent).score
+
+
+    [ userscore1, userscore2 ] = elo.compute_score(max(userscore1, userscore2),\
+                                                   min(userscore1, userscore2),\
+                                                   abs(score1 - score2))
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/simulate.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'me': me,
+      'registered_users': models.get_possible_opponents(),
+      'score1': score1,
+      'score2': score2,
+      'opponent': opponent,
+      'opponent_nickname': models.get_user(opponent).nickname,
+      'userscore1': userscore1,
+      'userscore2': userscore2
+    }
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+#################################################
+
 class DeleteMatchHandler(webapp.RequestHandler):
   def get(self, matchid):
     if not requires_admin(self):
@@ -158,6 +218,7 @@ class RegisterHandler(webapp.RequestHandler):
     if not is_registered() and not is_pending(): # add to pending users
       models.add_pending_user(users.get_current_user())
       status = 'new pending'
+      registered = False
       # send email to both user and admin
       sender_address = 'Squash TAI <tai.squash@gmail.com>'
       to = users.get_current_user().email()
@@ -181,14 +242,16 @@ http://squashtai.appspot.com/users/pending
 
     elif not is_registered(): # pending but not registered
       status = 'already pending'
+      registered = False
 
     else: # already registered
       status = 'already registered'
+      registered = True
 
     template_values = {
       'greeting': get_greeting(),
       'is_admin': is_admin(),
-      'is_registered': True,
+      'is_registered': registered,
       'status': status
     }
 
@@ -416,6 +479,7 @@ application = webapp.WSGIApplication(
     ('/profile', ProfileHandler),
     ('/match/add', AddMatchHandler),
     ('/match/delete/([0-9]+)', DeleteMatchHandler),
+    ('/match/simulate', SimulateHandler),
     ('/user/([0-9]+)', UserHandler),
     ('/users/compare', CompareHandler),
     ('/users/pending', PendingListHandler),
