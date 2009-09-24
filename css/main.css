@@ -98,15 +98,17 @@ a:hover {
   padding: 10px;
   border-top: 2px dotted #6b90da;
   width: 600px;
-  background-color: #fbfcfe
+  background-color: #fbfcfe;
 }
 
 .match.hl {
-  background-color: #e5ecf9
+  background-color: #e5ecf9;
 }
 
 .match:hover {
-  background-color: #e5ecf9
+  background-color: #e5ecf9;
+  border-right: 2px dotted #6b90da;
+  border-left: 2px dotted #6b90da;
 }
 
 .match.hl:hover {
