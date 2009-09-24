@@ -459,10 +459,9 @@ class AvatarHandler(webapp.RequestHandler):
 
 class XMPPHandler(webapp.RequestHandler):
   def post(self):
-    # check that the one is registered???
     message = xmpp.Message(self.request.POST)
-    user = get_user_(message.sender.split('/')[0])
-    if user is not None:
+    user = models.get_user_(message.sender.split('/')[0])
+    if not user is None:
       models.create_comment(user, message.body)
       if message.body[0:5].lower() == 'hello':
         message.reply("Greetings!")

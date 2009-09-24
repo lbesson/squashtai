@@ -3,8 +3,8 @@ import code
 import getpass
 import sys
 
-sys.path.append("/home/popeye/google_appengine")
-sys.path.append("/home/popeye/google_appengine/lib/yaml/lib")
+sys.path.append("/home/meije/google_appengine")
+sys.path.append("/home/meije/google_appengine/lib/yaml/lib")
 
 from google.appengine.ext.remote_api import remote_api_stub
 from google.appengine.ext import db
