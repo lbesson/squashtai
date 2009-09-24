@@ -148,6 +148,16 @@ def get_possible_opponents():
 
 ###############################################################
 
+def get_jids():
+  users = User.all().fetch(30)
+  jids = []
+  for user in users:
+    jids.append(user.user.email())
+
+  return jids
+
+###############################################################
+
 def update_avatar(user, data):
   user_obj = get_user_(user)
 

@@ -463,8 +463,9 @@ class XMPPHandler(webapp.RequestHandler):
     user = models.get_user_(users.User(message.sender.split('/')[0]))
     if user is not None:
       models.create_comment(user, message.body)
-      if message.body[0:5].lower() == 'hello':
-        message.reply("comment received")
+
+      body = user.nickname + '> ' + message.body
+      xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
 
 #################################################
 
