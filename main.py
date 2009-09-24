@@ -460,7 +460,7 @@ class AvatarHandler(webapp.RequestHandler):
 class XMPPHandler(webapp.RequestHandler):
   def post(self):
     message = xmpp.Message(self.request.POST)
-    create_comment(message.sender, message.body)
+    models.create_comment(message.sender, message.body)
     if message.body[0:5].lower() == 'hello':
       message.reply("Greetings!")
 
