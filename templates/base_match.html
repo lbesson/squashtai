@@ -1,9 +1,13 @@
 ## -*- coding: utf-8 -*-
-<%page args="match, is_admin"/>
+<%page args="match, is_admin, user"/>
 <%
   import models
 %>
+% if user is None or ((match.nickname1 != user or match.score1 != 3) and (match.nickname2 != user or match.score2 != 3)):
 <div class="match">
+% else:
+<div class="match hl">
+% endif
 <div class="date">
 ${models.relative_time(match.date)}
 </div>

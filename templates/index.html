@@ -36,7 +36,7 @@ ${newcomer.user.nickname()}
 <p>Derniers matchs&nbsp;:</p>
 <div>
 % for match in recent_matches:
-<%include file="/base_match.html" args="match=match, is_admin=is_admin"/>
+<%include file="/base_match.html" args="match=match, is_admin=is_admin, user=None"/>
 % endfor
 </div>
 </div>
