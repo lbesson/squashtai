@@ -168,10 +168,10 @@ class SimulateHandler(webapp.RequestHandler):
     userscore1 = me.score
     userscore2 = models.get_user(opponent).score
 
-
-    [ userscore1, userscore2 ] = elo.compute_score(max(userscore1, userscore2),\
-                                                   min(userscore1, userscore2),\
-                                                   abs(score1 - score2))
+    if score1 > score2:
+      [ userscore1, userscore2 ] = elo.compute_score(userscore1, userscore2, abs(score1 - score2))
+    else:
+      [ userscore2, userscore1 ] = elo.compute_score(userscore2, userscore1, abs(score1 - score2))
 
     template_file = os.path.join(os.path.dirname(__file__), 'templates/simulate.html')
     template_values = {
