@@ -3,11 +3,7 @@
 <%
   import models
 %>
-% if user is None or ((match.nickname1 != user or match.score1 != 3) and (match.nickname2 != user or match.score2 != 3)):
 <div class="match">
-% else:
-<div class="match hl">
-% endif
 <div class="date">
 ${models.relative_time(match.date)}
 </div>
@@ -17,17 +13,19 @@ ${models.relative_time(match.date)}
    onclick="if (!confirm('Êtes vous sur de vouloir supprimer ce match ?')) return false;">[supprimer]</a>
 </div>
 % endif
-${match.nickname1}
-% if match.score1 == 3:
-<b>${match.score1}</b>
+% if match.score1 == 3 and (user is None or user == match.nickname1):
+<b>${match.nickname1}
+${match.score1}</b>
 % else:
+${match.nickname1}
 ${match.score1}
 % endif
  -
-% if match.score2 == 3:
-<b>${match.score2}</b>
+% if match.score2 == 3 and (user is None or user == match.nickname2):
+<b>${match.score2}
+${match.nickname2}</b>
 % else:
 ${match.score2}
-% endif
 ${match.nickname2}
+% endif
 </div>
