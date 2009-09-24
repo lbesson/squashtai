@@ -7,6 +7,7 @@ import time
 import relativedelta
 import elo
 import cgi
+import StringIO
 from datetime import date
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -370,5 +371,21 @@ def create_comment(sender, text):
 
 ###############################################################
 
-def get_recent_comments(n=10):
-  return Comment.all().order('-date').fetch(n)
+def get_recent_comments():
+  data = memcache.get("comments")
+  if data is not None:
+    return data
+  else:
+    data = build_comments()
+    memcache.add("comments", data)
+    return data
+
+###############################################################
+
+def build_comments():
+  comments = Comment.all().order('-date').fetch(15)
+  output = StringIO.StringIO()
+  for comment in comments:
+    output.write("<img src=\"/avatar/%s\" alt=\"avatar\" /> <b>%s</b>" % (comment.senderid, comment.sender))
+    output.write("<br />%s<br />" % comment.text)
+  return output.getvalue()

@@ -12,6 +12,7 @@ from datetime import date
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from google.appengine.api import users
+from google.appengine.api import memcache
 from google.appengine.api import mail
 from google.appengine.api import images
 from google.appengine.api import xmpp
@@ -463,6 +464,7 @@ class XMPPHandler(webapp.RequestHandler):
     user = models.get_user_(users.User(message.sender.split('/')[0]))
     if user is not None:
       models.create_comment(user, message.body)
+      memcache.delete("comments")
 
       body = user.nickname + '> ' + message.body
       xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
@@ -492,6 +494,10 @@ class CommentHandler(webapp.RequestHandler):
       text = self.request.get('text')
       user = models.get_user_(users.get_current_user())
       models.create_comment(user, text)
+      memcache.delete("comments")
+
+      body = user.nickname + '> ' + text
+      xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
 
     self.redirect('/comment')
     return

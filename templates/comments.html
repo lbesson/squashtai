@@ -1,0 +1,15 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<div class="centered">
+<form action="/comment" method="post">
+Ajouter un commentaire:
+<input type="text" name="text"
+<input type="submit" value="Envoyer" />
+</form>
+<br />
+<br />
+${recent_comments}
+</div>
+</%def>
