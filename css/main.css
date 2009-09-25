@@ -157,7 +157,20 @@ tr .rank_chkbox, tr:hover .rank_number {
   padding: 0;
 }
 
-h3 img {
+h3 img, .comment img {
   border: 1px solid #d0d0d0;
   padding: 2px;
+}
+
+.comment {
+  width: 300px;
+  min-height: 80px;
+  margin: 0 auto 0 auto;
+  padding: 10px;
+  text-align: left;
+}
+
+.comment img {
+  float: left;
+  margin-right: 10px;
 }

@@ -382,8 +382,8 @@ def get_recent_comments_tpl(n=10):
 
   output = StringIO.StringIO()
   for comment in recent_comments:
-    output.write("<span><img src=\"/avatar/%s\" alt=\"avatar\" /> " % comment.senderid)
-    output.write("<b>%s</b><br />%s</span><br /><br />" % (comment.sender, comment.text))
+    output.write("<div class=\"comment\"><img src=\"/avatar/%s\" alt=\"avatar\" /> " % comment.senderid)
+    output.write("<b>%s</b><br />%s</div>\n" % (comment.sender, comment.text))
 
   return output.getvalue()
 
