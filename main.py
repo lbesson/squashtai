@@ -130,6 +130,10 @@ class AddMatchHandler(webapp.RequestHandler):
       return
 
     models.update_scores(match_id)
+
+    body = "%s %s - %s %s" % (models.get_user_(users.get_current_user()).nickname, self.request.get('score1'),\
+                              self.request.get('score2'), models.get_user(long(self.request.get('player2'))).nickname)
+    xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
     
     self.redirect('/')
 
