@@ -7,11 +7,14 @@ import time
 import relativedelta
 import elo
 import cgi
+import os
 import StringIO
 from datetime import date
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import users
+from mako.template import Template
+from mako.lookup import TemplateLookup
 
 SCORE = [ 0, 1, 2, 3 ]
 DEFAULT_SCORE = 500.0
@@ -167,11 +170,6 @@ def update_avatar(user, data):
 
   user_obj.avatar = db.Blob(data)
   user_obj.put()
-
-###############################################################
-
-def get_possible_opponents_by_rank():
-  return User.all().filter('score !=', 500.0).order('-score').fetch(100)
 
 ###############################################################
 
@@ -376,16 +374,81 @@ def get_recent_comments():
   if data is not None:
     return data
   else:
-    data = build_comments()
+    data = get_recent_comments_tpl()
     memcache.add("comments", data)
     return data
 
 ###############################################################
 
-def build_comments():
-  comments = Comment.all().order('-date').fetch(15)
+def get_recent_comments_tpl(n=10):
+  recent_comments = Comment.all().order('-date').fetch(n)
+
   output = StringIO.StringIO()
-  for comment in comments:
-    output.write("<img src=\"/avatar/%s\" alt=\"avatar\" /> <b>%s</b>" % (comment.senderid, comment.sender))
-    output.write("<br />%s<br />" % comment.text)
+  for comment in recent_comments:
+    output.write("<div class=\"comment\"><img src=\"/avatar/%s\" alt=\"avatar\" /> " % comment.senderid)
+    output.write("<b>%s</b><br />%s</div>\n" % (comment.sender, comment.text))
+
+  return output.getvalue()
+
+###############################################################
+
+def get_ranking():
+  data = memcache.get("ranks")
+  if data is not None:
+    return data
+  else:
+    data = get_ranking_tpl()
+    memcache.add("ranks", data)
+    return data
+
+###############################################################
+
+def get_ranking_tpl():
+  users = User.all().filter('score !=', 500.0).order('-score').fetch(100)
+
+  output = StringIO.StringIO()
+  i = 0
+  for user in users:
+    output.write("<tr class=\"color%s\">" % (i%2))
+    output.write("<td><span class=\"rank_number\">%s.</span><span class=\"rank_chkbox\">" % user.rank)
+    output.write("<input type=\"checkbox\"  id=\"chk_%s\" /></span></td>" % user.key().id())
+    output.write("<td><a href=\"/user/%s\">%s</a></td>" % (user.key().id(), user.nickname))
+    output.write("<td>%0.2f</td></tr>" % user.score)
+    i += 1
+
+  return output.getvalue()
+
+###############################################################
+
+def get_recent_matches_home():
+  if users.is_current_user_admin():
+    key = "matches_home_admin"
+  else:
+    key = "matches_home"
+
+  data = memcache.get(key)
+  if data is not None:
+    return data
+  else:
+    data = get_recent_matches_home_tpl()
+    memcache.add(key, data)
+    return data
+
+###############################################################
+
+def get_recent_matches_home_tpl():
+  matches = get_recent_matches()
+
+  output = StringIO.StringIO()
+  mylookup = TemplateLookup(directories=['templates'])
+  template_file = os.path.join(os.path.dirname(__file__), 'templates/base_match.html')
+
+  for match in matches:
+    template_values = {
+      'is_admin': users.is_current_user_admin(),
+      'match': match,
+      'user': None
+    }
+    output.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
   return output.getvalue()

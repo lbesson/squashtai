@@ -1,0 +1,75 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/base.html"/>
+
+<%def name="body()">
+<div class="centered">
+<form action="/match/simulate" method="post">
+<span class="player">${me.nickname}</span>
+<select name="score1" id="score1">
+  <option value="0"\
+  % if score1 == 0:
+  selected="selected"\
+  % endif
+>0</option>
+  <option value="1"\
+  % if score1 == 1:
+  selected="selected"\
+  % endif
+>1</option>
+  <option value="2"\
+  % if score1 == 2:
+  selected="selected"\
+  % endif
+>2</option>
+  <option value="3"\
+  % if score1 == 3:
+  selected="selected"\
+  % endif
+>3</option>
+</select>
+-
+<select name="score2" id="score2">
+  <option value="0"\
+  % if score2 == 0:
+  selected="selected"\
+  % endif
+>0</option>
+  <option value="1"\
+  % if score2 == 1:
+  selected="selected"\
+  % endif
+>1</option>
+  <option value="2"\
+  % if score2 == 2:
+  selected="selected"\
+  % endif
+>2</option>
+  <option value="3"\
+  % if score2 == 3:
+  selected="selected"\
+  % endif
+>3</option>
+</select>
+<select name="player2" id="player2">
+% for user in registered_users:
+  % if str(me.nickname) != user.nickname:
+  <option value="${user.key().id()}"\
+  % if opponent == user.key().id():
+  selected="selected"\
+  %endif
+>${user.nickname}</option>
+  % endif
+% endfor
+</select>
+<br /><br />
+<input type="submit" value="Simuler le match" />
+</form>
+<br />
+<br />
+% if userscore1 != 0:
+Nouveau score pour ${me.nickname} : ${"%0.2f"%(userscore1)}
+<br />
+Nouveau score pour ${opponent_nickname} : ${"%0.2f"%(userscore2)}
+% endif
+</div>
+</%def>

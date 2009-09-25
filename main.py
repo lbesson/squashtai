@@ -16,6 +16,7 @@ from google.appengine.api import memcache
 from google.appengine.api import mail
 from google.appengine.api import images
 from google.appengine.api import xmpp
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -123,12 +124,17 @@ class AddMatchHandler(webapp.RequestHandler):
       return
 
     match_id = models.create_new_match(users.get_current_user(), self.request)
+    memcache.delete_multi([ "ranks", "matches_home_admin", "matches_home" ])
 
     if match_id is None:
       self.redirect('/') # TODO error message
       return
 
     models.update_scores(match_id)
+
+    body = "%s %s - %s %s" % (models.get_user_(users.get_current_user()).nickname, self.request.get('score1'),\
+                              self.request.get('score2'), models.get_user(long(self.request.get('player2'))).nickname)
+    xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
     
     self.redirect('/')
 
@@ -511,9 +517,9 @@ class MainHandler(webapp.RequestHandler):
       'greeting': get_greeting(),
       'is_admin': is_admin(),
       'is_registered': is_registered(),
-      'competitors': models.get_possible_opponents_by_rank(),
+      'ranks': models.get_ranking(),
       'newcomers': models.get_new_players(),
-      'recent_matches': models.get_recent_matches()
+      'recent_matches': models.get_recent_matches_home()
     }
 
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))

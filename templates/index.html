@@ -8,20 +8,7 @@
 <tr class="color3">
 <th>Rang</th><th>Nom</th><th>Score</th>
 </tr>
-<%
-  i = 0
-%>
-% for competitor in competitors:
-<tr class="color${i%2}">
-<td><span class="rank_number">${competitor.rank}.</span><span class="rank_chkbox">
-<input type="checkbox"  id="chk_${competitor.key().id()}" /></span></td>
-<td><a href="/user/${competitor.key().id()}">${competitor.nickname}</a></td>
-<td>${"%0.2f"%(competitor.score)}</td>
-</tr>
-<%
-  i += 1
-%>
-% endfor
+${ranks}
 </table>
 <input id="compare_btn" type="button" value="Comparer les joueurs sélectionnés" style="display:none" />
 </center>
@@ -29,15 +16,13 @@
 % if len(newcomers):
 Inscrits, mais n'ont pas encore joué :
 % for newcomer in newcomers:
-${newcomer.user.nickname()} 
+${newcomer.nickname} 
 % endfor
 % endif
 </p>
 <p>Derniers matchs&nbsp;:</p>
 <div>
-% for match in recent_matches:
-<%include file="/base_match.html" args="match=match, is_admin=is_admin, user=None"/>
-% endfor
+${recent_matches}
 </div>
 </div>
 <script src="/js/compare.js" type="text/javascript"></script>
