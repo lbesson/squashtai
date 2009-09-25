@@ -22,9 +22,7 @@ ${newcomer.nickname}
 </p>
 <p>Derniers matchs&nbsp;:</p>
 <div>
-% for match in recent_matches:
-<%include file="/base_match.html" args="match=match, is_admin=is_admin, user=None"/>
-% endfor
+${recent_matches}
 </div>
 </div>
 <script src="/js/compare.js" type="text/javascript"></script>

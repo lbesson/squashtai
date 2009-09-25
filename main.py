@@ -123,7 +123,7 @@ class AddMatchHandler(webapp.RequestHandler):
       return
 
     match_id = models.create_new_match(users.get_current_user(), self.request)
-    memcache.delete("ranks")
+    memcache.delete_multi([ "ranks", "matches_home_admin", "matches_home" ])
 
     if match_id is None:
       self.redirect('/') # TODO error message
@@ -518,7 +518,7 @@ class MainHandler(webapp.RequestHandler):
       'is_registered': is_registered(),
       'ranks': models.get_ranking(),
       'newcomers': models.get_new_players(),
-      'recent_matches': models.get_recent_matches()
+      'recent_matches': models.get_recent_matches_home()
     }
 
     self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
