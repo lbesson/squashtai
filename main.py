@@ -15,6 +15,7 @@ from google.appengine.api import users
 from google.appengine.api import mail
 from google.appengine.api import images
 from google.appengine.api import xmpp
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -122,6 +123,7 @@ class AddMatchHandler(webapp.RequestHandler):
       return
 
     match_id = models.create_new_match(users.get_current_user(), self.request)
+    memcache.delete("ranks")
 
     if match_id is None:
       self.redirect('/') # TODO error message
@@ -505,7 +507,7 @@ class MainHandler(webapp.RequestHandler):
       'greeting': get_greeting(),
       'is_admin': is_admin(),
       'is_registered': is_registered(),
-      'competitors': models.get_possible_opponents_by_rank(),
+      'ranks': models.get_ranking(),
       'newcomers': models.get_new_players(),
       'recent_matches': models.get_recent_matches()
     }

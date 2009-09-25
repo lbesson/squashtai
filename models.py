@@ -7,6 +7,7 @@ import time
 import relativedelta
 import elo
 import cgi
+import StringIO
 from datetime import date
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -166,11 +167,6 @@ def update_avatar(user, data):
 
   user_obj.avatar = db.Blob(data)
   user_obj.put()
-
-###############################################################
-
-def get_possible_opponents_by_rank():
-  return User.all().filter('score !=', 500.0).order('-score').fetch(100)
 
 ###############################################################
 
@@ -372,3 +368,31 @@ def create_comment(sender, text):
 
 def get_recent_comments(n=10):
   return Comment.all().order('-date').fetch(n)
+
+###############################################################
+
+def get_ranking():
+  data = memcache.get("ranks")
+  if data is not None:
+    return data
+  else:
+    data = get_ranking_tpl()
+    memcache.add("ranks", data)
+    return data
+
+###############################################################
+
+def get_ranking_tpl():
+  users = User.all().filter('score !=', 500.0).order('-score').fetch(100)
+
+  output = StringIO.StringIO()
+  i = 0
+  for user in users:
+    output.write("<tr class=\"color%s\">" % (i%2))
+    output.write("<td><span class=\"rank_number\">%s.</span><span class=\"rank_chkbox\">" % user.rank)
+    output.write("<input type=\"checkbox\"  id=\"chk_%s\" /></span></td>" % user.key().id())
+    output.write("<td><a href=\"/user/%s\">%s</a></td>" % (user.key().id(), user.nickname))
+    output.write("<td>%0.2f</td></tr>" % user.score)
+    i += 1
+
+  return output.getvalue()
