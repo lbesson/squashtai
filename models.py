@@ -366,8 +366,26 @@ def create_comment(sender, text):
 
 ###############################################################
 
-def get_recent_comments(n=10):
-  return Comment.all().order('-date').fetch(n)
+def get_recent_comments():
+  data = memcache.get("comments")
+  if data is not None:
+    return data
+  else:
+    data = get_recent_comments_tpl()
+    memcache.add("comments", data)
+    return data
+
+###############################################################
+
+def get_recent_comments_tpl(n=10):
+  recent_comments = Comment.all().order('-date').fetch(n)
+
+  output = StringIO.StringIO()
+  for comment in recent_comments:
+    output.write("<span><img src=\"/avatar/%s\" alt=\"avatar\" /> " % comment.senderid)
+    output.write("<b>%s</b><br />%s</span><br /><br />" % (comment.sender, comment.text))
+
+  return output.getvalue()
 
 ###############################################################
 
