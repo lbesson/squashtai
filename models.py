@@ -431,7 +431,7 @@ def get_recent_matches_home():
     return data
   else:
     data = get_recent_matches_home_tpl()
-    memcache.add(key, data)
+    memcache.add(key, data, 3600)
     return data
 
 ###############################################################
