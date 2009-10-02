@@ -270,7 +270,7 @@ def get_scores(userid):
   if user is None:
     return None
 
-  scores = Score.all().filter('user =', user.user).fetch(100)
+  scores = Score.all().order('date').filter('user =', user.user).fetch(100)
   return scores
 
 ###############################################################
