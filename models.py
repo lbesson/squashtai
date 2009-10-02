@@ -193,6 +193,10 @@ def create_new_match(me, request):
   if (match.score1 != 3 and match.score2 != 3) or (match.score1 == 3 and match.score2 == 3):
     return None
 
+  # update wins and loses of the players
+  [ winner, looser, gap ] = get_winner_looser(current_match)
+  update_wins_loses(winner, looser)
+
   match.put()
   return match.key().id()
 
@@ -329,10 +333,6 @@ def compute_ranks():
 def update_scores(match_id):
   current_match = Match.get_by_id(match_id)
   
-  # update wins and loses of the players
-  [ winner, looser, gap ] = get_winner_looser(current_match)
-  update_wins_loses(winner, looser)
-
   # get all matches that took place after this one, or the same day
   # FIXME what if some matches happen the same day? -> we don't really care
   matches = Match.all().order('date').filter('date >=', current_match.date).fetch(100)
