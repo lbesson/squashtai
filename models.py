@@ -208,6 +208,11 @@ def delete_match(matchid):
   # FIXME we assume there is at least one match the same day or before
   match_for_computation = Match.all().filter('date <=', match_to_delete.date).get()
 
+  # decrement counters
+  [ winner, looser, gap ] = get_winner_looser(current_match)
+  decrement_wins_loses(winner, looser)
+
+  # delete match
   match_to_delete.delete()
 
   return match_for_computation.key().id()
@@ -295,6 +300,15 @@ def update_wins_loses(winner, looser):
   looser_obj = User.all().filter('user =', looser).get()
   winner_obj.wins += 1
   looser_obj.loses += 1
+  db.put([ winner_obj, looser_obj ])
+
+###############################################################
+
+def decrement_wins_loses(winner, looser):
+  winner_obj = User.all().filter('user =', winner).get()
+  looser_obj = User.all().filter('user =', looser).get()
+  winner_obj.wins -= 1
+  looser_obj.loses -= 1
   db.put([ winner_obj, looser_obj ])
 
 ###############################################################
