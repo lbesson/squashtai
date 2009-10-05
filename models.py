@@ -194,7 +194,7 @@ def create_new_match(me, request):
     return None
 
   # update wins and loses of the players
-  [ winner, looser, gap ] = get_winner_looser(current_match)
+  [ winner, looser, gap ] = get_winner_looser(match)
   update_wins_loses(winner, looser)
 
   match.put()
