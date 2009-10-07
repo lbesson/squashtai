@@ -432,6 +432,9 @@ class ProfileHandler(webapp.RequestHandler):
       self.redirect('/profile')
       return
 
+    # clear cached parts where nicknames and photos may appear
+    memcache.delete_multi([ "ranks", "matches_home_admin", "matches_home", "comments" ])
+
     # update nickname
     if self.request.get('nickname'):
       models.update_nickname(users.get_current_user(), self.request.get('nickname'))
