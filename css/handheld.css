@@ -1,7 +1,11 @@
-.match {
+.match, .comment {
   width: 280px;
 }
 
+#main, #header {
+  width: 310px;
+}
+
 table {
-  width: 280px;
+  border-color: red;
 }
