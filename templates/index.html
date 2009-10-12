@@ -17,7 +17,7 @@ ${ranks}
 % if len(retired):
 Joueurs à la retraite :
 % for retired_player in retired:
-<a href="${retired_player.key().id()}">${retired_player.nickname}</a>
+<a href="/user/${retired_player.key().id()}">${retired_player.nickname}</a>
 % endfor
 % endif
 </p>
