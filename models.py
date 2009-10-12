@@ -38,6 +38,7 @@ class User(db.Model):
   loses = db.IntegerProperty(default=0)
   rank = db.IntegerProperty(default=0)
   avatar = db.BlobProperty()
+  retired = db.BooleanProperty(default=False)
 
 ###############################################################
 
@@ -406,6 +407,11 @@ def get_recent_comments_tpl(n=10):
 
 ###############################################################
 
+def get_retired_players():
+  return User.all().filter('retired =', True).fetch(100)
+
+###############################################################
+
 def get_ranking():
   data = memcache.get("ranks")
   if data is not None:
@@ -418,7 +424,7 @@ def get_ranking():
 ###############################################################
 
 def get_ranking_tpl():
-  users = User.all().filter('score !=', 500.0).order('-score').fetch(100)
+  users = User.all().filter('score !=', 500.0).filter('retired =', False).order('-score').fetch(100)
 
   output = StringIO.StringIO()
   i = 0
@@ -426,7 +432,7 @@ def get_ranking_tpl():
     output.write("<tr class=\"color%s\">" % (i%2))
     output.write("<td><span class=\"rank_number\">%s.</span><span class=\"rank_chkbox\">" % user.rank)
     output.write("<input type=\"checkbox\"  id=\"chk_%s\" /></span></td>" % user.key().id())
-    output.write("<td><a href=\"/user/%s\">%s</a></td>" % (user.key().id(), user.nickname))
+    output.write("<td class=\"player_name\"><a href=\"/user/%s\">%s</a></td>" % (user.key().id(), user.nickname))
     output.write("<td>%0.2f</td></tr>" % user.score)
     i += 1
 

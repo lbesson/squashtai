@@ -12,6 +12,17 @@ ${ranks}
 </table>
 <input id="compare_btn" type="button" value="Comparer les joueurs sélectionnés" style="display:none" />
 </center>
+
+<p>
+% if len(retired):
+Joueurs à la retraite :
+% for retired_player in retired:
+<a href="${retired_player.key().id()}">${retired_player.nickname}</a>
+% endfor
+% endif
+</p>
+</p>
+
 <p>
 % if len(newcomers):
 Inscrits, mais n'ont pas encore joué :
@@ -20,6 +31,7 @@ ${newcomer.nickname}
 % endfor
 % endif
 </p>
+
 <p>Derniers matchs&nbsp;:</p>
 <div>
 ${recent_matches}

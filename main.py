@@ -522,6 +522,7 @@ class MainHandler(webapp.RequestHandler):
       'is_registered': is_registered(),
       'ranks': models.get_ranking(),
       'newcomers': models.get_new_players(),
+      'retired': models.get_retired_players(),
       'recent_matches': models.get_recent_matches_home()
     }
 
