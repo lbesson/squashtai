@@ -9,7 +9,12 @@
 <h3>${user.nickname}
 <br /><img src="/avatar/${user.key().id()}" alt="avatar" /></h3>
 <p>
-Classement actuel : ${user.rank} (${"%0.2f"%(user.score)} points)<br />
+% if user.retired:
+Dernier classement obtenu :
+% else:
+Classement actuel : 
+% endif
+${user.rank} (${"%0.2f"%(user.score)} points)<br />
 Matchs joués : ${user.wins + user.loses}<br />
 Victoires : ${user.wins}<br />
 Défaites : ${user.loses}<br />
