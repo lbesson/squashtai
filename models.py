@@ -319,7 +319,7 @@ def decrement_wins_loses(winner, looser):
 ###############################################################
 
 def compute_ranks():
-  users = User.all().filter('score !=', 500.0).order('-score').fetch(1000) # we suppose we will never have that much users..
+  users = User.all().filter('score !=', 500.0).filter('retired =', False).order('-score').fetch(1000) # we suppose we will never have that much users..
   rank = 0
   previous_user_score = 0
   for user in users:
