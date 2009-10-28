@@ -34,7 +34,7 @@ Date du match:
 </select>
 <select name="player2" id="player2">
 % for user in registered_users:
-  % if str(me.nickname) != user.nickname:
+  % if unicode(me.nickname) != user.nickname:
   <option value="${user.key().id()}">${user.nickname}</option>
   % endif
 % endfor

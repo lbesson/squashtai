@@ -373,8 +373,8 @@ class CompareHandler(webapp.RequestHandler):
           y.append(y[-1])
         charts.append([ x, y ])
 
-    def adapt_date(d): return str((oldest - d) * 100 / oldest)
-    def adapt_score(s): return str((s - min_score + 10) * 100 / (max_score - min_score + 10))
+    def adapt_date(d): return unicode((oldest - d) * 100 / oldest)
+    def adapt_score(s): return unicode((s - min_score + 10) * 100 / (max_score - min_score + 10))
     def adapt_chart(l): return [ map(adapt_date, l[0]), map(adapt_score, l[1]) ]
     charts = map(adapt_chart, charts)
 
