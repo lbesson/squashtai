@@ -305,6 +305,7 @@ class PendingHandler(webapp.RequestHandler):
       subject = "Inscription à squashtai"
       body = """
 Votre inscription a été validée, bienvenue !
+Pensez à modifier votre profil et à mettre une photo de vous !
 
 Squash TAI
 """
