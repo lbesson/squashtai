@@ -410,6 +410,51 @@ class FeedHandler(webapp.RequestHandler):
 
 #################################################
 
+class MailHandler(webapp.RequestHandler):
+  def get(self):
+    if not requires_registered(self):
+      return
+
+    template_file = os.path.join(os.path.dirname(__file__), 'templates/mail.html')
+    template_values = {
+      'greeting': get_greeting(),
+      'is_admin': is_admin(),
+      'is_registered': is_registered(),
+      'me': models.get_user_(users.get_current_user()),
+      'registered_users': models.get_possible_opponents()
+    }
+
+    self.response.out.write(Template(filename=template_file,lookup=mylookup).render_unicode(**template_values))
+
+  def post(self):
+    if not requires_registered(self):
+      return
+
+    mail_to_key = long(self.request.get('mail_to'));
+    body = unicode(self.request.get('message'));
+
+    if (mail_to_key == 0 and not is_admin()):
+      self.redirect('/') # TODO error message
+      return
+
+    # retrieve recipient's email and name
+    if (mail_to_key == 0):
+      mail_to = "Squash TAI <squashtai@appspot.com>"
+    else:
+      user = models.get_user(mail_to_key);
+      if user is None:
+        self.redirect('/') # TODO error message
+        return
+      mail_to = user.nickname + ' <' + user.user.email() + '>'
+
+    sender_address = users.get_current_user().email()
+    mail.send_mail(sender_address, mail_to, "plop", body)
+
+    self.redirect('/')
+    return
+
+#################################################
+
 class ProfileHandler(webapp.RequestHandler):
   def get(self):
     if not requires_registered(self):
@@ -546,6 +591,7 @@ application = webapp.WSGIApplication(
     ('/feed.rss', FeedHandler),
     ('/avatar/([0-9]+)', AvatarHandler),
     ('/comment', CommentHandler),
+    ('/mail', MailHandler),
     ('/_ah/xmpp/message/chat/', XMPPHandler),
     ('/.*', NotFoundPageHandler),
   ], debug=True)
