@@ -430,8 +430,9 @@ class MailHandler(webapp.RequestHandler):
     if not requires_registered(self):
       return
 
-    mail_to_key = long(self.request.get('mail_to'));
-    body = unicode(self.request.get('message'));
+    mail_to_key = long(self.request.get('mail_to', 0));
+    body = unicode(self.request.get('message', ''));
+    subject = unicode(self.request.get('subject', ''));
 
     if (mail_to_key == 0 and not is_admin()):
       self.redirect('/') # TODO error message
@@ -439,16 +440,16 @@ class MailHandler(webapp.RequestHandler):
 
     # retrieve recipient's email and name
     if (mail_to_key == 0):
-      mail_to = "Squash TAI <squashtai@appspot.com>"
+      recipients = models.get_possible_opponents(); ## TODO disabled in templates since not compatible with quotas
     else:
-      user = models.get_user(mail_to_key);
-      if user is None:
-        self.redirect('/') # TODO error message
-        return
-      mail_to = user.nickname + ' <' + user.user.email() + '>'
+      recipients = [ models.get_user(mail_to_key) ]
 
     sender_address = users.get_current_user().email()
-    mail.send_mail(sender_address, mail_to, "plop", body)
+    
+    for recipient in recipients:
+      if recipient is not None:
+        mail_to = recipient.nickname + ' <' + recipient.user.email() + '>'
+        mail.send_mail(sender_address, mail_to, subject, body)
 
     self.redirect('/')
     return
