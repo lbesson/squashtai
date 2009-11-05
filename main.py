@@ -434,22 +434,13 @@ class MailHandler(webapp.RequestHandler):
     body = unicode(self.request.get('message', ''));
     subject = unicode(self.request.get('subject', ''));
 
-    if (mail_to_key == 0 and not is_admin()):
-      self.redirect('/') # TODO error message
-      return
-
-    # retrieve recipient's email and name
-    if (mail_to_key == 0):
-      recipients = models.get_possible_opponents(); ## TODO disabled in templates since not compatible with quotas
-    else:
-      recipients = [ models.get_user(mail_to_key) ]
+    recipient = models.get_user(mail_to_key)
 
     sender_address = users.get_current_user().email()
     
-    for recipient in recipients:
-      if recipient is not None:
-        mail_to = recipient.nickname + ' <' + recipient.user.email() + '>'
-        mail.send_mail(sender_address, mail_to, subject, body)
+    if recipient is not None:
+      mail_to = recipient.nickname + ' <' + recipient.user.email() + '>'
+      mail.send_mail(sender_address, mail_to, subject, body)
 
     self.redirect('/')
     return

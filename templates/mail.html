@@ -6,9 +6,6 @@
 <form action="/mail" method="post">
 Destinataire:
 <select name="mail_to">
-% if is_admin:
-  <!--<option value="0">Tout le monde</option>-->
-% endif
 % for user in registered_users:
   % if unicode(me.nickname) != user.nickname:
   <option value="${user.key().id()}">${user.nickname}</option>
