@@ -21,7 +21,8 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-ADMIN_EMAIL = 'tai.squash@gmail.com'
+ADMIN_EMAIL = <PUT_ADMIN_GMAIL_ACCOUNT> # eg: toto@gmail.com
+APP_URL = <PUT_APP_URL>     # eg: tai-squash-tour-3
 MAX_CHART_ENTRIES = 15 ## You need at least as much color as MAX_CHART_ENTRIES
 COLORS = [ '003DF5', 'F5003D', '3DF500', 'F5F500', 'FF70B8',
            'CC6600', 'F5B800', '00991A', '00CCFF', 'CCFF00',
@@ -134,7 +135,7 @@ class AddMatchHandler(webapp.RequestHandler):
 
     body = "%s %s - %s %s" % (models.get_user_(users.get_current_user()).nickname, self.request.get('score1'),\
                               self.request.get('score2'), models.get_user(long(self.request.get('player2'))).nickname)
-    xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
+    xmpp.send_message(models.get_jids(), body, APP_URL + "@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
     
     self.redirect('/')
 
@@ -228,9 +229,9 @@ class RegisterHandler(webapp.RequestHandler):
       status = 'new pending'
       registered = False
       # send email to both user and admin
-      sender_address = 'Squash TAI <tai.squash@gmail.com>'
+      sender_address = 'Squash TAI <' + ADMIN_EMAIL + '>'
       to = users.get_current_user().email()
-      subject = "Inscription à squashtai"
+      subject = "Inscription à Squash TAI"
       body = """
 Votre inscription a bien été prise en compte, et est en attente de validation.
 Un nouveau mail vous sera envoyé lorsque votre inscription deviendra effective.
@@ -240,12 +241,12 @@ Vous pouvez répondre à cette adresse pour plus d'information.
 Squash TAI
 """
       mail.send_mail(sender_address, to, subject, body)
-      subject = "Demande d'inscription à squashtai"
+      subject = "Demande d'inscription à Squash TAI"
       body = """
 Nouvelle demande d'inscription pour %s.
 
-http://squashtai.appspot.com/users/pending
-""" % users.get_current_user().email()
+%s.appspot.com/users/pending
+""" % (users.get_current_user().email() , APP_URL)
       mail.send_mail_to_admins(sender_address, subject, body)
 
     elif not is_registered(): # pending but not registered
@@ -300,15 +301,17 @@ class PendingHandler(webapp.RequestHandler):
 
     if choice == 'accept':
       # send email
-      sender_address = 'Squash TAI <tai.squash@gmail.com>'
+      sender_address = ADMIN_EMAIL
       to = pending_user.user.email()
-      subject = "Inscription à squashtai"
+      subject = "Inscription à Squash TAI"
       body = """
 Votre inscription a été validée, bienvenue !
 Pensez à modifier votre profil et à mettre une photo de vous !
 
+%s.appspot.com
+
 Squash TAI
-"""
+""" % APP_URL
       mail.send_mail(sender_address, to, subject, body)
 
       models.register_user(pending_user.user)
@@ -514,7 +517,7 @@ class XMPPHandler(webapp.RequestHandler):
       memcache.delete("comments")
 
       body = user.nickname + '> ' + message.body
-      xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
+      xmpp.send_message(models.get_jids(), body, APP_URL + ".appspot.com", xmpp.MESSAGE_TYPE_CHAT)
 
 #################################################
 
@@ -544,7 +547,7 @@ class CommentHandler(webapp.RequestHandler):
       memcache.delete("comments")
 
       body = user.nickname + '> ' + text
-      xmpp.send_message(models.get_jids(), body, "squashtai@appspot.com", xmpp.MESSAGE_TYPE_CHAT)
+      xmpp.send_message(models.get_jids(), body, APP_URL + ".appspot.com", xmpp.MESSAGE_TYPE_CHAT)
 
     self.redirect('/comment')
     return
